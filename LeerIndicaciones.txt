@@ -1,0 +1,10 @@
+Crear entorno virtual python -m venv myenv
+Instalar los modulos de python con pip install -r requirements.txt
+
+1.- Ingresar a la pagina home
+2.- Registrarse, el correo de validacion llegara a su email
+3.- Iniciar sesion en la pagina
+4.- Puede buscar en la barra de busqueda
+5.- Puede agregar productos al carrito
+6.- Se puede hacer checkout
+7.- Se pueden agregar bicicletas desde admin las credenciales son admin@gmail.com contraseña admin1234

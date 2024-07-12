@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load formatos %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Catálogo de Bicicletas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .image-size {
+            height: 200px; /* altura fija */
+            object-fit: cover; /* cubre el área sin perder las proporciones */
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    {% include 'clientes/navbar.html' %}
+    <h1 class="text-3xl font-bold text-center my-6">Catálogo de Bicicletas</h1>
+    <ul class="flex flex-wrap justify-center">
+        {% for bicicleta in bicicletas %}
+        <li class="m-4 p-6 bg-white rounded-lg shadow-md max-w-sm">
+            <!-- Enlace que envuelve toda la tarjeta -->
+            <a href="{% url 'detalles_bicicleta' bicicleta.id %}" class="block no-underline">
+                <div class="text-lg text-green-600 hover:text-green-800 font-bold">
+                    {{ bicicleta.marca }} {{ bicicleta.modelo }}
+                </div>
+                <div class="text-lg text-gray-600 hover:text-gray-800 font-bold">
+                    Categoria: {{bicicleta.tipo}}
+                </div>
+                <p class="text-gray-800 font-semibold mt-2">{{ bicicleta.precio_venta|formato_clp }}</p>
+                <img src="{{ bicicleta.imagen.url }}" alt="Imagen de {{ bicicleta.marca }} {{ bicicleta.modelo }}" class="mt-4 w-full image-size">
+                <div class="button-container">
+                    <form action="{% url 'Carro:agregar_a_carrito' bicicleta.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg text-sm">
+                            Agregar al Carrito
+                        </button>
+                    </form>
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

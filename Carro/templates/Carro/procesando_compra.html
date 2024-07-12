@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesando Compra - MasterBikes</title>
+    <!-- Incluir Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-masterbikes-green { background-color: #28a745; }
+        .text-masterbikes-green { color: #28a745; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    {% include 'clientes/navbar.html'%}
+    <div class="container mx-auto mt-20">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h1 class="text-2xl font-semibold text-masterbikes-green">Estamos procesando su compra</h1>
+            <p class="mt-4">Gracias por su compra. En breve recibirá una confirmación por correo electrónico.</p>
+        </div>
+    </div>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

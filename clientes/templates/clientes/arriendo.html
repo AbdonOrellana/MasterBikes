@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static widget_tweaks %}
+    {% load formatos %}
+    <meta charset="UTF-8">
+    <title>Formulario de Arriendo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{% static 'js/arriendo.js' %}"></script>
+</head>
+<body class="bg-gray-100">
+    {% include 'clientes/navbar.html' %}
+    <div class="container mx-auto mt-12 p-4">
+        <div class="bg-white shadow-md rounded-lg p-8 max-w-lg mx-auto">
+            <h1 class="text-2xl font-bold text-center text-green-600 mb-6">Solicitud de Arriendo</h1>
+            <form method="post" class="space-y-4" id="arriendoForm">
+                {% csrf_token %}
+                <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                    <div class="col-span-1 sm:col-span-2">
+                        <label for="id_bicicleta" class="block text-gray-700">Bicicleta:</label>
+                        <select name="bicicleta" id="id_bicicleta" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                            {% for bicicleta in bicicletas %}
+                                <option value="{{ bicicleta.id }}" data-precio="{{ bicicleta.precio_por_dia }}" data-imagen-url="{{ bicicleta.imagen.url }}">{{ bicicleta.marca }} {{ bicicleta.modelo }} - {{ bicicleta.precio_por_dia|formato_clp }}/día</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="id_fecha_inicio" class="block text-gray-700">Fecha inicio:</label>
+                        {{ form.fecha_inicio|add_class:"w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" }}
+                    </div>
+                    <div>
+                        <label for="id_fecha_fin" class="block text-gray-700">Fecha fin:</label>
+                        {{ form.fecha_fin|add_class:"w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" }}
+                    </div>
+                    <!-- Campos visibles con formato y campos ocultos para enviar -->
+                    <div>
+                        <label for="formatted_costo_arriendo" class="block text-gray-700">Costo arriendo:</label>
+                        <input type="text" id="formatted_costo_arriendo" readonly class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                        <input type="hidden" id="id_costo_arriendo" name="costo_arriendo">
+                    </div>
+                    <div>
+                        <label for="formatted_deposito_garantia" class="block text-gray-700">Depósito garantía:</label>
+                        <input type="text" id="formatted_deposito_garantia" readonly class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                        <input type="hidden" id="id_deposito_garantia" name="deposito_garantia">
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <label for="formatted_costo_total" class="block text-gray-700">Costo total:</label>
+                        <input type="text" id="formatted_costo_total" readonly class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                        <input type="hidden" id="id_costo_total" name="costo_total">
+                    </div>
+                </div>
+                <div class="form-group text-center mt-6">
+                    <img id="bicicleta-preview" src="" alt="Vista previa de bicicleta" class="mx-auto hidden w-48 h-auto">
+                </div>
+                <div class="text-center mt-6">
+                    <button type="button" id="procederPagoBtn" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600">Proceder con el pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+        <!-- Modal de Pago -->
+        <div id="pagoModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">Seleccione el método de pago</h3>
+                    <button id="cerrarModal" class="text-gray-600 hover:text-gray-800">&times;</button>
+                </div>
+                <div id="opcionesPago" class="mt-4 space-y-4">
+                    <button class="w-full bg-blue-500 text-white py-2 px-4 rounded flex items-center justify-center" onclick="seleccionarMetodoPago('debito')">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Débito
+                    </button>
+                    <button class="w-full bg-green-500 text-white py-2 px-4 rounded flex items-center justify-center" onclick="seleccionarMetodoPago('credito')">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Crédito
+                    </button>
+                    <button class="w-full bg-yellow-500 text-white py-2 px-4 rounded flex items-center justify-center" onclick="seleccionarMetodoPago('transferencia')">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        Transferencia
+                    </button>
+                </div>
+                <div id="datosPago" class="mt-4 hidden">
+                    <!-- Aquí se cargarán dinámicamente los campos según el método de pago -->
+                </div>
+                <div class="mt-4">
+                    <button id="confirmarPagoBtn" class="w-full bg-green-600 text-white py-2 px-4 rounded hidden">Confirmar Pago</button>
+                </div>
+            </div>
+        </div>
+    <script src="{% static 'js/navbar.js' %}" defer></script>
+    <script>
+        const pagoModal = document.getElementById('pagoModal');
+        const cerrarModal = document.getElementById('cerrarModal');
+        const opcionesPago = document.getElementById('opcionesPago');
+        const datosPago = document.getElementById('datosPago');
+        const confirmarPagoBtn = document.getElementById('confirmarPagoBtn');
+    
+        document.getElementById('procederPagoBtn').addEventListener('click', function() {
+            pagoModal.classList.remove('hidden');
+        });
+    
+        function seleccionarMetodoPago(metodo) {
+    opcionesPago.classList.add('hidden');
+    datosPago.innerHTML = '';
+    datosPago.classList.remove('hidden');
+    
+    let iconoHTML = '';
+    if (metodo === 'debito' || metodo === 'credito') {
+        iconoHTML = `
+        <svg class="w-16 h-16 mx-auto mb-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+        </svg>
+        `;
+        datosPago.innerHTML = `
+            ${iconoHTML}
+            <h4 class="font-bold mb-2 text-center">Pago con ${metodo}</h4>
+            <input type="text" placeholder="Número de tarjeta" class="w-full p-2 mb-2 border rounded">
+            <input type="text" placeholder="Fecha de expiración" class="w-full p-2 mb-2 border rounded">
+            <input type="text" placeholder="CVV" class="w-full p-2 mb-2 border rounded">
+        `;
+    } else if (metodo === 'transferencia') {
+        iconoHTML = `
+        <svg class="w-16 h-16 mx-auto mb-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+        </svg>
+        `;
+        datosPago.innerHTML = `
+            ${iconoHTML}
+            <h4 class="font-bold mb-2 text-center">Transferencia bancaria</h4>
+            <p class="text-center">Realice la transferencia a la siguiente cuenta:</p>
+            <p class="text-center">Banco: Banco estao</p>
+            <p class="text-center">Cuenta: 711.382.933</p>
+            <p class="text-center">RUT: 71.382.933-4</p>
+            <br>
+            <p class="text-center">Al confirmar el pago nos contactaremos contigo en un plazo de 24 a 48 horas(Dias habiles)</p>
+  
+        `;
+    }
+
+    confirmarPagoBtn.classList.remove('hidden');
+}
+    
+        confirmarPagoBtn.addEventListener('click', function() {
+            document.getElementById('arriendoForm').submit();
+        });
+    
+        // Cerrar modal al hacer clic en la X
+        cerrarModal.addEventListener('click', function() {
+            cerrarModalPago();
+        });
+    
+        // Cerrar modal al hacer clic fuera de él
+        window.addEventListener('click', function(event) {
+            if (event.target === pagoModal) {
+                cerrarModalPago();
+            }
+        });
+    
+        function cerrarModalPago() {
+            pagoModal.classList.add('hidden');
+            opcionesPago.classList.remove('hidden');
+            datosPago.classList.add('hidden');
+            confirmarPagoBtn.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

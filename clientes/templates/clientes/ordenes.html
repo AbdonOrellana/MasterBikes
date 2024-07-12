@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    {% load formatos %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Actividades - MasterBikes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'masterbikes-green': '#14A44D',
+                        'masterbikes-orange': '#FF6600',
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Agregar toggle para todos los elementos con la clase .accordion-toggle
+            document.querySelectorAll('.accordion-toggle').forEach(item => {
+                item.addEventListener('click', function() {
+                    let accordionContent = this.nextElementSibling;
+                    accordionContent.classList.toggle('hidden');
+                });
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+    {%include 'clientes/navbar.html'%}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <h1 class="text-3xl font-bold text-center mb-6 text-masterbikes-green">Mis Actividades</h1>
+        <div class="space-y-12">
+            <!-- Sección de Órdenes con estilo acordeón -->
+            <div>
+                <h2 class="text-2xl font-bold text-center mb-6 text-masterbikes-green">Mis Órdenes</h2>
+                {% if ordenes %}
+                    <div class="space-y-6">
+                        {% for orden in ordenes %}
+                            <div class="bg-white shadow-md rounded-lg">
+                                <div class="bg-masterbikes-green text-white px-4 py-5 sm:px-6 border-b border-gray-200 accordion-toggle cursor-pointer">
+                                    <h3 class="text-lg leading-6 font-medium">
+                                        Orden #{{ orden.id }}
+                                    </h3>
+                                    <p class="mt-1 max-w-2xl text-sm">
+                                        Estado: <span class="font-semibold">{{ orden.get_estado_display }}</span> | 
+                                        Total: <span class="font-semibold">{{ orden.total|formato_clp }}</span>
+                                    </p>
+                                </div>
+                                <div class="px-4 py-5 sm:p-6 hidden">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">Detalles de la orden:</h4>
+                                    <ul class="divide-y divide-gray-200">
+                                        {% for item in orden.items.all %}
+                                            <li class="py-3 flex justify-between items-center">
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                                        Bicicleta: {{ item.bicicleta.modelo }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-500">
+                                                        Cantidad: {{ item.cantidad }}
+                                                    </p>
+                                                </div>
+                                                <div class="ml-4 flex-shrink-0">
+                                                    <p class="text-sm font-medium text-gray-900">
+                                                        Total: {{ item.precio|formato_clp }}
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                        <p class="text-gray-600">No tienes órdenes en este momento.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Sección de Reparaciones con estilo acordeón -->
+            <div>
+                <h2 class="text-2xl font-bold text-center mb-6 text-masterbikes-green">Reparaciones</h2>
+                {% if reparaciones %}
+                    <div class="space-y-6">
+                        {% for reparacion in reparaciones %}
+                            <div class="bg-white shadow-md rounded-lg">
+                                <div class="bg-masterbikes-green text-white px-4 py-5 sm:px-6 border-b border-gray-200 accordion-toggle cursor-pointer">
+                                    <h3 class="text-lg leading-6 font-medium">
+                                        Reparación #{{ reparacion.id }}
+                                    </h3>
+                                    <p class="mt-1 max-w-2xl text-sm">
+                                        Descripción: <span class="font-semibold">{{ reparacion.descripcion_problema }}</span>
+                                    </p>
+                                </div>
+                                <div class="px-4 py-5 sm:p-6 hidden">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">Detalles de la reparación:</h4>
+                                    <p class="text-sm text-gray-500">
+                                        Estado: <span class="font-semibold">{{ reparacion.estado_reparacion }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                        <p class="text-gray-600">No tienes reparaciones pendientes.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Sección de Arriendos con estilo acordeón -->
+            <div>
+                <h2 class="text-2xl font-bold text-center mb-6 text-masterbikes-orange">Arriendos</h2>
+                {% if arriendos %}
+                    <div class="space-y-6">
+                        {% for arriendo in arriendos %}
+                            <div class="bg-white shadow-md rounded-lg">
+                                <div class="bg-masterbikes-orange text-white px-4 py-5 sm:px-6 border-b border-gray-200 accordion-toggle cursor-pointer">
+                                    <h3 class="text-lg leading-6 font-medium">
+                                        Arriendo #{{ arriendo.id }}
+                                    </h3>
+                                    <p class="mt-1 max-w-2xl text-sm">
+                                        Bicicleta: <span class="font-semibold">{{ arriendo.bicicleta.modelo }}</span>
+                                    </p>
+                                </div>
+                                <div class="px-4 py-5 sm:p-6 hidden">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">Detalles del arriendo:</h4>
+                                    <p class="text-sm text-gray-500">
+                                        Desde: <span class="font-semibold">{{ arriendo.fecha_inicio|date:"d M Y" }}</span> |
+                                        Hasta: <span class="font-semibold">{{ arriendo.fecha_fin|date:"d M Y" }}</span>
+                                        Costo: <span>{{arriendo.costo_total|formato_clp}}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                        <p class="text-gray-600">No tienes arriendos activos.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

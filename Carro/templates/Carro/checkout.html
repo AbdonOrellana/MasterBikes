@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    {% load formatos %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - MasterBikes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-masterbikes-green { background-color: #28a745; }
+        .text-masterbikes-green { color: #28a745; }
+        .bg-masterbikes-orange { background-color: #ffa500; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    {% include 'Clientes/navbar.html'%}
+    <div class="container mx-auto mt-10">
+        <div class="flex shadow-md my-10">
+            <div class="w-3/4 bg-white px-10 py-10">
+                <div class="flex justify-between border-b pb-8">
+                    <h1 class="font-semibold text-2xl text-masterbikes-green">Carrito de Compras</h1>
+                    <h2 class="font-semibold text-2xl text-masterbikes-green">{{ items_count }} Items</h2>
+                </div>
+                <div class="flex mt-10 mb-5">
+                    <h3 class="font-semibold text-masterbikes-green text-xs uppercase w-2/5">Detalles del Producto</h3>
+                    <h3 class="font-semibold text-masterbikes-green text-xs uppercase w-1/5 text-center">Cantidad</h3>
+                    <h3 class="font-semibold text-masterbikes-green text-xs uppercase w-1/5 text-center">Precio</h3>
+                    <h3 class="font-semibold text-masterbikes-green text-xs uppercase w-1/5 text-center">Total</h3>
+                </div>
+
+                {% for item in items %}
+                <div class="flex items-center hover:bg-gray-100 -mx-8 px-6 py-5">
+                    <div class="flex w-2/5">
+                        <div class="w-20">
+                            <img class="h-24" src="{{ item.bicicleta.imagen.url }}" alt="Imagen de {{ item.bicicleta.modelo }}">
+                        </div>
+                        <div class="flex flex-col justify-between ml-4 flex-grow">
+                            <span class="font-bold text-sm text-masterbikes-green">{{ item.bicicleta.marca }} {{ item.bicicleta.modelo }}</span>
+                            <span class="text-purple-600 text-xs">{{ item.bicicleta.tipo }}</span>
+                            <form action="{% url 'Carro:eliminar_de_carrito' item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="flex justify-center w-1/5">
+                        <form action="{% url 'Carro:actualizar_carrito' item.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" name="accion" value="decrementar" class="text-gray-500 hover:text-gray-700">-</button>
+                        </form>
+                        <span class="mx-2 border text-center w-8 py-1 px-2 bg-gray-100">{{ item.cantidad }}</span>
+                        <form action="{% url 'Carro:actualizar_carrito' item.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" name="accion" value="incrementar" class="text-gray-500 hover:text-gray-700">+</button>
+                        </form>
+                    </div>
+                    <span class="text-center w-1/5 font-semibold text-sm">{{ item.bicicleta.precio_venta|formato_clp }}</span>
+                    <span class="text-center w-1/5 font-semibold text-sm">{{ item.total_price|formato_clp }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="summary" class="w-1/4 px-8 py-10">
+                <h1 class="font-semibold text-2xl border-b pb-8">Resumen del Pedido</h1>
+                <div class="flex justify-between mt-10 mb-5">
+                    <span class="font-semibold text-sm uppercase">Items {{ items_count }}</span>
+                    <span class="font-semibold text-sm">{{ total_carrito|formato_clp }}</span>
+                </div>  
+                <div class="border-t mt-8">
+                    <div class="flex font-semibold justify-between py-6 text-sm uppercase">
+                        <span>Precio total</span>
+                        <span>{{ total_final|formato_clp }}</span>
+                    </div>
+                    <button class="bg-masterbikes-green hover:bg-green-600 py-3 text-sm text-white uppercase w-full" onclick="toggleModal()">Proceder al pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal para seleccionar método de pago -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-lg font-semibold mb-4">Seleccione el Método de Pago</h2>
+            <form action="{% url 'Carro:procesar_pago' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">
+                        <input type="radio" name="metodo_pago" value="debito" class="mr-2"> Débito
+                    </label>
+                    <label class="block text-sm mb-2">
+                        <input type="radio" name="metodo_pago" value="credito" class="mr-2"> Crédito
+                    </label>
+                    <label class="block text-sm mb-2">
+                        <input type="radio" name="metodo_pago" value="transferencia" class="mr-2"> Transferencia Bancaria
+                    </label>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded mr-2" onclick="toggleModal()">Cancelar</button>
+                    <button type="submit" class="bg-masterbikes-green hover:bg-green-600 text-white py-2 px-4 rounded ">Confirmar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function toggleModal() {
+            const modal = document.getElementById('paymentModal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

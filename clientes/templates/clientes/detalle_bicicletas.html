@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static formatos %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Detalles de Bicicleta - {{ bicicleta.modelo }}</title>
+</head>
+<body class="bg-gray-100">
+    {%include 'clientes/navbar.html'%}
+    <div class="max-w-4xl mx-auto p-5">
+        <div class="flex flex-wrap md:flex-nowrap">
+            <div class="md:w-1/2 p-4">
+                <img src="{{ bicicleta.imagen.url }}" alt="Imagen de {{ bicicleta.modelo }}" class="w-full h-auto rounded-lg shadow-lg">
+            </div>
+            <div class="md:w-1/2 p-4 bg-white shadow-md rounded-lg">
+                <div class="mb-3">
+                    <h2 class="text-2xl font-bold text-gray-800">{{ bicicleta.marca }} {{ bicicleta.modelo }}</h2>
+                </div>
+                <div class="mb-3">
+                    <span class="text-lg font-semibold text-gray-900">Precio: {{ bicicleta.precio_venta|formato_clp }}</span>
+                </div>
+                <form action="{% url 'Carro:agregar_a_carrito' bicicleta.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Agregar al Carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

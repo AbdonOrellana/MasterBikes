@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static%}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activa tu cuenta en MasterBikes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-md rounded-lg p-8 max-w-lg w-full">
+        <p class="text-gray-800 text-lg mb-4">Hola {{ user.first_name }},</p>
+        <p class="text-gray-600 mb-4">Gracias por registrarte en MasterBikes. Por favor, haz clic en el enlace a continuación para activar tu cuenta:</p>
+        <p class="text-center mb-4">
+            <a href="http://{{ domain }}{% url 'activar' uid token %}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Activar cuenta
+            </a>
+        </p>
+        <p class="text-gray-600 mb-4">Si el enlace anterior no funciona, copia y pega la siguiente URL en tu navegador:</p>
+        <p class="text-blue-500 break-all">http://{{ domain }}{% url 'activar' uid token %}</p>
+    </div>
+</body>
+</html>

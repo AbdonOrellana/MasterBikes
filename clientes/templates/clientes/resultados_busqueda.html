@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load formatos %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Resultados de Búsqueda - MasterBikes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    {% include 'clientes/navbar.html' %}
+    <h1 class="text-3xl font-bold text-center my-6">Resultados de Búsqueda</h1>
+    <ul class="flex flex-wrap justify-center">
+        {% for bicicleta in resultados %}
+            <li class="m-4 p-6 bg-white rounded-lg shadow-md max-w-sm">
+                <a href="{% url 'detalles_bicicleta' bicicleta.id %}" class="block no-underline">
+                    <div class="text-lg text-green-600 hover:text-green-800 font-bold">
+                        {{bicicleta.marca }} {{ bicicleta.modelo }}
+                    </div>
+                    <p class="text-gray-800 font-semibold mt-2">{{ bicicleta.precio_venta|formato_clp }}</p>
+                    <img src="{{ bicicleta.imagen.url }}" alt="Imagen de {{ bicicleta.nombre }}" class="mt-4 w-full h-auto">
+                    <form action="{% url 'Carro:agregar_a_carrito' bicicleta.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg text-sm">
+                            Agregar al Carrito
+                        </button>
+                    </form>
+                </a>
+            </li>
+        {% empty %}
+            <li class="m-4 p-6 bg-white rounded-lg shadow-md max-w-sm text-center">
+                <p class="text-gray-800 font-semibold">No se encontraron resultados.</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <script src="{% static 'js/navbar.js' %}"></script>
+</body>
+</html>

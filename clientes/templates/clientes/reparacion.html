@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    {% load widget_tweaks %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Reparación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    {% include 'clientes/navbar.html' %}
+    <div class="container mx-auto mt-12 p-4">
+        <div class="bg-white shadow-md rounded-lg p-8 max-w-lg mx-auto">
+            <h1 class="text-2xl font-bold text-center mb-6">Solicitud de Reparación</h1>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="text-red-500 text-xs italic">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                <div class="mb-4">
+                    <label for="{{ form.marca_bicicleta.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.marca_bicicleta.label }}
+                    </label>
+                    {{ form.marca_bicicleta|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+                    {% if form.marca_bicicleta.errors %}
+                        <p class="text-red-500 text-xs italic">{{ form.marca_bicicleta.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label for="{{ form.tipo_bicicleta.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.tipo_bicicleta.label }}
+                    </label>
+                    {{ form.tipo_bicicleta|add_class:"form-select block w-full mt-1" }}
+                    {% if form.tipo_bicicleta.errors %}
+                        <p class="text-red-500 text-xs italic">{{ form.tipo_bicicleta.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label for="{{ form.descripcion_problema.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.descripcion_problema.label }}
+                    </label>
+                    {{ form.descripcion_problema|add_class:"textarea bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" }}
+                    {% if form.descripcion_problema.errors %}
+                        <p class="text-red-500 text-xs italic">{{ form.descripcion_problema.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label for="{{ form.reserva_tecnico.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.reserva_tecnico.label }}
+                    </label>
+                    <select name="{{ form.reserva_tecnico.name }}" id="{{ form.reserva_tecnico.id_for_label }}" class="form-select block w-full mt-1">
+                        <option value="">Seleccione un horario</option>
+                        {% for reserva in form.reserva_tecnico.queryset %}
+                            <option value="{{ reserva.id }}" data-especialidad="{{ reserva.tecnico.especialidad }}">
+                                {{ reserva.fecha_inicio|date:"d/m/Y H:i" }} - {{ reserva.fecha_fin|date:"H:i" }} ({{ reserva.tecnico.nombre }} - Especialista en bicicletas de: {{ reserva.tecnico.especialidad }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.reserva_tecnico.errors %}
+                        {% for error in form.reserva_tecnico.errors %}
+                            <p class="text-red-500 text-xs italic">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="text-center mt-6">
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                        Enviar Solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'js/navbar.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoBicicletaSelect = document.getElementById('{{ form.tipo_bicicleta.id_for_label }}');
+            const reservaTecnicoSelect = document.getElementById('{{ form.reserva_tecnico.id_for_label }}');
+            tipoBicicletaSelect.addEventListener('change', function() {
+                const selectedEspecialidad = this.value;
+                Array.from(reservaTecnicoSelect.options).forEach(option => {
+                    if (option.dataset.especialidad === selectedEspecialidad || option.value === "") {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+                reservaTecnicoSelect.value = "";
+            });
+        });
+    </script>
+</body>
+</html>
